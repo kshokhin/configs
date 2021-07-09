@@ -1,0 +1,21 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+---
+Language: Cpp
+
+AccessModifierOffset: -4
+AllowShortBlocksOnASingleLine: true
+ExperimentalAutoDetectBinPacking: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
+BinPackArguments: true
+BinPackParameters: false
+ColumnLimit: 100
+DerivePointerAlignment: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterEnum: true
+  AfterStruct: true
+  AfterClass: true
+AlwaysBreakTemplateDeclarations: Yes
