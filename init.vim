@@ -13,9 +13,11 @@ Plug 'rhysd/vim-clang-format'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'sjl/gundo.vim'
 Plug 'dyng/ctrlsf.vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'terryma/vim-multiple-cursors'
 Plug 'scrooloose/nerdcommenter'
+
+"Language server plugin
+Plug 'neovim/nvim-lspconfig'
 
 "Fuzzy find
 Plug 'airblade/vim-rooter'
@@ -63,8 +65,8 @@ colorscheme gruvbox
 
 let g:fzf_preview_window = []
 
-:nmap <c-s> :w<CR>
-:imap <c-s> <Esc>:w<CR>a
+:nmap <c-s> <space>f:w<CR>
+:imap <c-s> <Esc><space>f:w<CR>a
 
 map <C-p> :Files<CR>
 vnoremap <C-h> :nohlsearch<CR>
@@ -85,10 +87,10 @@ lnoremap <C-e> <Esc>
 tnoremap <C-e> <Esc>
 map H ^
 map L $
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+nmap <silent> gd <Cmd>lua vim.lsp.buf.definition()<CR>
+nmap <silent> <space>f <Cmd>lua vim.lsp.buf.formatting()<CR>
+nmap <silent> gi <Cmd>lua vim.lsp.buf.implementation()<CR>
+nmap <silent> gr <Cmd>lua vim.lsp.buf.references()<CR>
 
 let g:rustfmt_autosave = 1
 let g:rustfmt_emit_files = 1
@@ -101,6 +103,15 @@ let g:vim_markdown_folding_disabled = 1
 
 let g:vim_indent_guides_start_level = 2
 
+"Language servers setup
+lua << EOF
+local lspconfig = require 'lspconfig'
+lspconfig.clangd.setup{
+    cmd = { "clangd-12", "--background-index", "--fallback-style=none" },
+    filetypes = { "c", "cpp", "objc", "objcpp" },
+    root_dir = lspconfig.util.root_pattern("compile_commands.json", "build/compile_commands.json", "compile_flags.txt", ".git") or dirname
+}
+EOF
 
 set laststatus=2
 
