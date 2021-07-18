@@ -18,6 +18,8 @@ Plug 'scrooloose/nerdcommenter'
 
 "Language server plugin
 Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-lua/lsp_extensions.nvim'
+Plug 'nvim-lua/completion-nvim'
 
 "Fuzzy find
 Plug 'airblade/vim-rooter'
@@ -48,6 +50,9 @@ set spell spelllang=en_us
 set spellcapcheck=""
 
 set signcolumn=yes
+
+set completeopt=menuone,noinsert,noselect
+set shortmess+=c
 
 let g:airline_powerline_fonts=1
 let g:rbpt_max = 16
@@ -105,12 +110,44 @@ let g:vim_indent_guides_start_level = 2
 
 "Language servers setup
 lua << EOF
-local lspconfig = require 'lspconfig'
-lspconfig.clangd.setup{
+local nvim_lsp = require'lspconfig'
+
+local on_attach = function(client)
+    require'completion'.on_attach(client)
+end
+
+nvim_lsp.rust_analyzer.setup({
+    on_attach=on_attach,
+    settings = {
+        ["rust-analyzer"] = {
+            assist = {
+                importGranularity = "module",
+                importPrefix = "by_self",
+            },
+            cargo = {
+                loadOutDirsFromCheck = true
+            },
+            procMacro = {
+                enable = true
+            },
+        }
+    }
+})
+
+nvim_lsp.clangd.setup{
+    on_attach=on_attach,
     cmd = { "clangd-12", "--background-index", "--fallback-style=none" },
     filetypes = { "c", "cpp", "objc", "objcpp" },
-    root_dir = lspconfig.util.root_pattern("compile_commands.json", "build/compile_commands.json", "compile_flags.txt", ".git") or dirname
+    root_dir = nvim_lsp.util.root_pattern("compile_commands.json", "build/compile_commands.json", "compile_flags.txt", ".git") or dirname
 }
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    virtual_text = true,
+    signs = true,
+    update_in_insert = true,
+  }
+)
 EOF
 
 set laststatus=2
